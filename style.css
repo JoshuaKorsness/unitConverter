@@ -1,7 +1,7 @@
 html {
-	background-color: #f7f7f7;
+ 	background: rgb(255,236,192);
+	background: linear-gradient(36deg, rgba(255,236,192,1) 0%, rgba(249,224,250,1) 100%); 
 	font-family: 'Mitr', sans-serif;
-	color: #0c3f00;
 	height: 100%;
 }
 
@@ -44,13 +44,19 @@ li {
 
 a {
 	text-decoration: none;
-	color: #0c3f00;
+	color: black;
 }
 
 .headerText {
 	text-align: center;
 	min-height: 15vh;
 	font-size: 5vw;
+	color: rgb(255,123,0);
+	text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
 }
 
 .conversions {
@@ -91,6 +97,7 @@ a {
 
 .footerText {
 	text-align: center;
+	color: black;
 }
 
 .newConv {
