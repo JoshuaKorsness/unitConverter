@@ -36,12 +36,12 @@
 
 		function updateValue(e) {
 
-			//If backspace triggered event, exit function. Otherwise, impossible to delete first number. 
+			//If backspace triggered event, exit function. Otherwise, impossible to delete first number.
 			if (e.keyCode==8 && this.value.length == 0) {
 				return;
 			}
 
-			//Display suggestions if units are modified
+			//Display suggestions if units are modified.
 			if (this.className === 'inUnit' || this.className === 'outUnit') {
 				showList(this);
 			}
