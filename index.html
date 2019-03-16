@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Unit Converter</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="units.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Mitr" rel="stylesheet"> 
+	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"> 
+</head>
+
+<body>
+	<header class="headerText">A Unit Converter that isn't Terrible</header>
+
+	<div class="conversions">
+		<div class="input">
+			<input class="inValue" type="number" palceholder="Input">
+			<div class="inUnitContainer">
+				<input class="inUnit" type="text" placeholder="Unit">
+				<ul class="inpSugg"></ul>
+			</div>
+		</div>
+		<div class="output">
+			<input class="outValue" type="number" palceholder="output">
+			<div class="outUnitContainer">
+				<input class="outUnit" type="text" placeholder="Unit">
+				<ul class="outSugg"></ul>
+			</div>
+		</div>
+		<h1 class="infoText"></h1>
+	</div>
+
+	<footer class="footerText">Built by <a href="https://www.linkedin.com/in/joshua-korsness-601231101/">Josh Korsness</a></footer>
+
+	<script>
+
+		function updateValue(e) {
+
+			//If backspace triggered event, exit function. Otherwise, impossible to delete first number. 
+			if (e.keyCode==8 && this.value.length == 0) {
+				return;
+			}
+
+			//Display suggestions if units are modified
+			if (this.className === 'inUnit' || this.className === 'outUnit') {
+				showList(this);
+			}
+
+			//Find object that matches the input and output units
+			const inUnitObj = unitScalars.filter(unit => unit.name == inU.value)[0];
+			const outUnitObj = unitScalars.filter(unit => unit.name == outU.value)[0];
+			 
+			//Break out of function if no unit matches found
+			if (inUnitObj == null || outUnitObj == null) {
+				return;	
+			}
+			else if (inUnitObj.anchor !== outUnitObj.anchor) {
+				infoText.innerHTML = "Invalid Unit Conversion";
+				input.value = 0;
+				output.value = 0;
+				input.classList.add('newConv');
+				output.classList.add('newConv');
+				clearSugg();
+				return; //To Do: Implement function displaying warning of invalid units
+			}
+			else {
+				infoText.innerHTML = '';	//Remove warning text if units are valid
+			}
+
+			//Pull scalars from matched objects
+			const inScalar = inUnitObj.scalar;
+			const outScalar = outUnitObj.scalar;
+
+			//Display unit conversion info
+			infoText.innerHTML = `1 ${inUnitObj.name} = ${inScalar/outScalar} ${outUnitObj.name}`;
+
+			//Calculate unit conversion
+			if (input.value !== '' && output.value == '') {
+				output.value = (input.value*inScalar)/outScalar;
+				output.classList.add('newConv');
+				clearSugg();	//For some reason when the list mousedown event fires AND a new conversion is calculated, clearSugg doens't fire, so I'm putting it here too.
+			}
+			else if (input.value == '' && output.value !== '') {
+				input.value = (output.value*outScalar)/inScalar;
+				input.classList.add('newConv');
+				clearSugg();
+			}
+			else if (this.className === "inValue" || this.className === "inUnit") {
+				output.value = (input.value*inScalar)/outScalar;
+				output.classList.add('newConv');
+				clearSugg();
+			}
+			else {
+				input.value = (output.value*outScalar)/inScalar;
+				input.classList.add('newConv');
+				clearSugg();
+			}
+		}
+
+		function findMatch(entry, target) {
+			return target.filter(place => {
+				const regex = new RegExp(entry, 'gi');
+				return place.match(regex);
+			})
+		}
+
+		function showList (entry) {
+			//If input is empty, clear list, return
+			if (entry.value == '') {
+				clearSugg();
+				return;
+			}
+			const list = findMatch(entry.value, names);
+			const html = list.map(match => {
+				return `<li class="listEntries">${match}</li>`
+			}).join('');
+			if (entry.className === 'inUnit') {
+				inpSugg.innerHTML = html;
+				inpSugg.childNodes.forEach(item => {
+					item.addEventListener('mousedown', () => {
+						inU.value = item.textContent;
+						clearSugg;
+					})
+					item.addEventListener('mouseover', () => {
+						item.style.background = 'red';
+					})
+					item.addEventListener('mouseout', () => {
+						item.style.background = 'white';
+					})
+				});
+			}
+			else {
+				outSugg.innerHTML = html;
+				outSugg.childNodes.forEach(item => {
+					item.addEventListener('mousedown', () => {
+						outU.value = item.textContent;
+						clearSugg;
+					})
+					item.addEventListener('mouseover', () => {
+						item.style.background = 'red';
+					})
+					item.addEventListener('mouseout', () => {
+						item.style.background = 'white';
+					})
+				});
+			}
+		}
+
+		//Function to clear suggestion list
+		function clearSugg () {
+			inpSugg.innerHTML = '';
+			outSugg.innerHTML = '';
+			console.log('fire clearSugg');
+		}
+
+		function removeTransition(e) {				//Function to remove highlighting buttons
+			this.classList.remove('newConv');	//"this" is "key" as key was called against it.
+		}
+
+		//Test function for console log
+		function cL () {
+			console.log('fire');
+		}
+
+		//Generate array of available unit names
+		const names = unitScalars.map(obj => {
+			return obj.name;
+		})
+
+		//Gather all input & output values & units
+		const input = document.querySelector('.inValue');
+		const output = document.querySelector('.outValue');
+		const inU = document.querySelector('.inUnit');
+		const outU = document.querySelector('.outUnit');
+		const inpSugg = document.querySelector('.inpSugg');
+		const outSugg = document.querySelector('.outSugg');
+		const infoText = document.querySelector('.infoText');
+
+		//Fire event if anything changes
+		document.addEventListener('mousedown', clearSugg);
+		input.addEventListener('change', updateValue);
+		input.addEventListener('keyup', updateValue);
+		output.addEventListener('change', updateValue);
+		output.addEventListener('keyup', updateValue);
+		inU.addEventListener('change', updateValue);
+		inU.addEventListener('keyup', updateValue);
+		outU.addEventListener('change', updateValue);
+		outU.addEventListener('keyup', updateValue);
+		input.addEventListener('transitionend', removeTransition);
+		output.addEventListener('transitionend', removeTransition);
+	</script>
+
+</body>
+
+</html>
