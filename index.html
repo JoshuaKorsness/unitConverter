@@ -36,7 +36,7 @@
 
 		function updateValue(e) {
 
-			//If backspace triggered event, exit function. Otherwise, impossible to delete first number
+			//Prevent recalculating conversion when deleting last digit
 			if (e.keyCode==8 && this.value.length == 0) {
 				return;
 			}
@@ -110,7 +110,19 @@
 				clearSugg();
 				return;
 			}
+
+			//Look for unit matches
 			const list = findMatch(entry.value, names);
+
+			//If entry matches a single suggestion, clear list
+			function singleMatch (item) {
+				return item == entry.value;
+			}
+			if (list.some(singleMatch)) {
+				clearSugg();
+				return;
+			}
+
 			const html = list.map(match => {
 				return `<li class="listEntries">${match}</li>`
 			}).join('');
